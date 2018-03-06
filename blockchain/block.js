@@ -1,6 +1,7 @@
-const CryptoUtil = require('./cryptoUtil');
+const CryptoUtil = require('../util/cryptoUtil');
 
 /*
+Block Structure:
 { // Block
     "index": 0, // (first block: 0)
     "previousHash": "0", // (hash of previous block, first block is 0) (64 bytes)
