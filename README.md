@@ -1,3 +1,3 @@
 # blockchain
 
-My implementation of a blockchain
+Basic implementation of a blockchain
