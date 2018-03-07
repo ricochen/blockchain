@@ -1,10 +1,12 @@
-const Block = require('./block');
-const CryptoUtil = require('../util/cryptoUtil');
 const Config = require('../config');
+const CryptoUtil = require('../util/cryptoUtil');
+const Block = require('./block');
+const Transaction = require('./transaction');
 
 class Blockchain {
   constructor() {
     this.chain = [this.createGenesisBlock()];
+    this.transactions = [];
   }
 
   createGenesisBlock() {
@@ -34,8 +36,48 @@ class Blockchain {
 
   addBlock(newBlock) {
     if (this.isValidBlock(newBlock, this.getLastBlock())) {
-      this.chain.push(nnewBlock);
+      this.chain.push(newBlock);
+
+      this.removeBlockTransactionsFromTransactions(newBlock);
+
+      console.info(`Block added: ${newBlock.hash}`);
     }
+  }
+
+  addTransaction(newTransaction) {
+    if (this.isValidTransaction(newTransaction)) {
+      this.transactions.push(newTransaction);
+
+      console.info(`Transaction added: ${newTransaction.id}`);
+    }
+  }
+
+  removeBlockTransactionsFromTransactions(newBlock) {
+    const transactionsToRemove = newBlock.transactions.map(transaction => transaction.id);
+
+    this.transactions = this.transactions.filter(transaction =>
+      !transactionsToRemove.includes(transaction.id)
+    );
+  }
+
+  isValidTransaction(transaction) {
+    if (!transaction.check()) {
+      return false;
+    }
+
+    const transactionIds = this.chain.map(block =>
+      block.transactions.map(transaction => transaction.id).join()
+    );
+    const transactionIsInBlockchain = transactionIds.includes(transaction.id);
+
+    if (transactionIsInBlockchain) {
+      throw new Error(`Transaction '${transaction.id}' is already in the blockchain`, transaction);
+    }
+
+    // TO DO: Verify if all input transactions are unspent in the blockchain
+
+
+    return true;
   }
 }
 
