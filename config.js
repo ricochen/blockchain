@@ -1,5 +1,5 @@
 module.exports = {
-  MINING_REWARD: 10000,
+  MINING_REWARD: 1000000000,
   FEE_PER_TRANSACTION: 10,
   TRANSACTIONS_PER_BLOCK: 8,
   genesisBlock: {
