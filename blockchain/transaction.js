@@ -1,4 +1,3 @@
-const R = require('ramda');
 const CryptoUtil = require('../util/cryptoUtil');
 const Config = require('../config');
 
@@ -99,3 +98,5 @@ class Transaction {
     return true;
   }
 }
+
+module.exports = Transaction;

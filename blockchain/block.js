@@ -28,7 +28,7 @@ class Block {
   }
 
   toHash() {
-    return CryptoUtil.hash(this.index + this.previousHash + this.timestamp + JSON.stringify(this.transactions) + this.nonce);
+    return CryptoUtil.hash(this.index + this.previousHash + this.timestamp + JSON.stringify(this.transactions) + this.nonce).toString();
   }
 
   getDifficulty() {
