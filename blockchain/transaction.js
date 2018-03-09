@@ -32,23 +32,12 @@ Transaction structure:
 */
 
 class Transaction {
-  constructor() {
-    Object.assign(this, {
-      id: null,
-      hash: null,
-      type: null,
-      data: {
-        inputs: [],
-        outputs: []
-      }
-    });
-    // this.id = null;
-    // this.hash = null;
-    // this.type = null;
-    // this.data = {
-    //     inputs: [],
-    //     outputs: []
-    // };
+  constructor({id, hash, type, data}) {
+    Object.assign(this, {id, hash, type});
+    this.data = data || {
+      inputs: [],
+      outputs: []
+    };
   }
 
   toHash() {
@@ -73,7 +62,6 @@ class Transaction {
         throw new Error(`Invalid transaction input signature '${JSON.stringify(txInput)}'`);
       }
     });
-
 
     if (this.type === 'regular') {
       let sumOfInputsAmount = 0;
