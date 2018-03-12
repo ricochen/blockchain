@@ -101,7 +101,7 @@ class Blockchain {
       transaction.data.outputs.forEach(txOutput => sumOfOutputsAmount += txOutput.amount);
     });
 
-    if (sumOfInputsAmount !== sumOfOutputsAmount) {
+    if (sumOfInputsAmount < sumOfOutputsAmount) {
       throw new Error(`Invalid block balance: inputs sum '${sumOfInputsAmount}', outputs sum '${sumOfOutputsAmount}'`);
     }
 
@@ -189,22 +189,24 @@ class Blockchain {
       throw new Error(`Transaction '${transaction.id}' is already in the blockchain`, transaction);
     }
 
-    const pastTransactionInputs = [];
-    this.transactions.forEach(tx => {
-      tx.data.inputs.forEach(txInput => {
-        pastTransactionInputs.push(txInput);
+    const uniqueTransactionInputs = {};
+    this.chain.forEach(block => {
+      block.transactions.forEach(tx => {
+        tx.data.inputs.forEach(txInput => {
+          uniqueTransactionInputs[txInput.transaction] = txInput.index;
+        });
       });
     });
 
     let transactionIsSpent = false;
-    for (const pastTxInput of pastTransactionInputs) {
-      for (const txInput of transaction.data.inputs) {
-        if (transactionIsSpent) {
-          break;
-        }
-        if (pastTxInput.transaction === txInput.transaction && pastTxInput.index === txInput.index) {
-          transactionIsSpent = true;
-        }
+    for (const txInput of transaction.data.inputs) {
+      if (transactionIsSpent) {
+        break;
+      }
+
+      const duplicateTxInput = uniqueTransactionInputs[txInput.transaction];
+      if (duplicateTxInput && duplicateTxInput === txInput.index) {
+        transactionIsSpent = true;
       }
     }
 
