@@ -10,9 +10,9 @@ class Miner {
   }
 
   mine(rewardAddress, feeAddress) {
-    return Miner.generateNextBlock(rewardAddress, feeAddress, this.blockchain);
+    const newBlock = Miner.generateNextBlock(rewardAddress, feeAddress, this.blockchain);
 
-    //TO DO PoW
+    return Miner.proveWorkFor(newBlock, this.blockchain.getDifficulty());
   }
 
   static generateNextBlock(rewardAddress, feeAddress, blockchain) {
@@ -53,7 +53,7 @@ class Miner {
     console.info(`Selected ${validTransactions.length} candidate transactions with ${nonValidTransactions.length} being rejected.`);
 
     const transactions = [];
-    for (let i = 0; i < Config.TRANSACTIONS_PER_BLOCK; i++) {
+    for (let i = 0; i < validTransactions.length && i < Config.TRANSACTIONS_PER_BLOCK; i++) {
       transactions.push(validTransactions[i]);
     }
 
@@ -77,7 +77,7 @@ class Miner {
     }
 
     if (rewardAddress != null) {
-      let rewardTransaction = Transaction.fromJson({
+      let rewardTransaction = new Transaction({
         id: CryptoUtil.randomId(64),
         hash: null,
         type: 'reward',
@@ -101,12 +101,27 @@ class Miner {
     const timestamp = new Date().getTime() / 1000;
 
     return new Block({
-        index,
-        nonce: 0,
-        previousHash,
-        timestamp,
-        transactions
+      index,
+      nonce: 0,
+      previousHash,
+      timestamp,
+      transactions
     });
+  }
+
+  static proveWorkFor(jsonBlock, difficulty) {
+    let blockDifficulty = null;
+    const start = process.hrtime();
+    const block = new Block(jsonBlock);
+
+    do {
+      block.timestamp = new Date().getTime() / 1000;
+      block.nonce++;
+      block.hash = block.toHash();
+      blockDifficulty = block.getDifficulty();
+    } while (blockDifficulty >= difficulty);
+      console.info(`Block found: time '${process.hrtime(start)[0]} sec' dif '${difficulty}' hash '${block.hash}' nonce '${block.nonce}'`);
+      return block;
   }
 }
 
